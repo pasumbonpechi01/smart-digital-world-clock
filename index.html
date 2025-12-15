@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>World Digital Clock Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #1e3c72, #2a5298);
+      --card-bg: #111;
+      --text-color: #fff;
+      --accent: #00e5ff;
+      --accent-hover: #00bfff;
+      --shadow: rgba(0, 229, 255, 0.5);
+    }
+    body.light {
+      --bg-gradient: linear-gradient(135deg, #f7f7f7, #e7e7e7);
+      --card-bg: #ffffff;
+      --text-color: #000;
+      --accent: #0077ff;
+      --accent-hover: #005fd6;
+      --shadow: rgba(0, 119, 255, 0.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    .container {
+      width: min(720px, 92vw);
+      background: color-mix(in oklab, var(--card-bg) 92%, transparent);
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px var(--shadow);
+      border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+      backdrop-filter: blur(8px);
+      transition: background 0.4s ease, box-shadow 0.4s ease, border 0.4s ease;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(24px, 4vw, 28px);
+      letter-spacing: 0.5px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    button, select, input[type="time"], input[type="number"] {
+      appearance: none;
+      background: var(--accent);
+      color: #021c24;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 6px 18px color-mix(in oklab, var(--accent) 25%, transparent);
+    }
+    button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    select, input[type="time"], input[type="number"] {
+      background: color-mix(in oklab, var(--card-bg) 95%, #0000);
+      color: var(--text-color);
+      box-shadow: none;
+      border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 680px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 8px 28px var(--shadow);
+      border: 1px solid color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+    .clock-card {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+    .time {
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(40px, 8vw, 64px);
+      margin: 4px 0 6px;
+      text-shadow: 0 0 24px color-mix(in oklab, var(--accent) 65%, transparent);
+    }
+    .date {
+      opacity: 0.9;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 16px;
+      letter-spacing: 0.4px;
+      opacity: 0.9;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px dashed color-mix(in oklab, var(--accent) 35%, transparent);
+      font-size: 12px;
+      opacity: 0.85;
+    }
+    .footer {
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: 0.7;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌍 World Digital Clock Dashboard</h1>
+
+    <div class="toolbar">
+      <button id="themeBtn">🌗 Toggle Dark/Light</button>
+      <button id="formatBtn">🕘 Toggle 12/24h</button>
+      <select id="timezone">
+        <option value="local">Device local time</option>
+        <option value="Asia/Kolkata">India (New Delhi)</option>
+        <option value="Asia/Seoul">South Korea (Seoul)</option>
+        <option value="America/New_York">USA (New York)</option>
+        <option value="America/Los_Angeles">USA (Los Angeles)</option>
+        <option value="Europe/London">UK (London)</option>
+        <option value="Europe/Paris">France (Paris)</option>
+        <option value="Europe/Berlin">Germany (Berlin)</option>
+        <option value="Europe/Moscow">Russia (Moscow)</option>
+        <option value="Asia/Shanghai">China (Beijing)</option>
+        <option value="Asia/Tokyo">Japan (Tokyo)</option>
+        <option value="Australia/Sydney">Australia (Sydney)</option>
+        <option value="America/Toronto">Canada (Toronto)</option>
+        <option value="America/Sao_Paulo">Brazil (São Paulo)</option>
+        <option value="Africa/Johannesburg">South Africa (Johannesburg)</option>
+        <option value="Asia/Dubai">UAE (Dubai)</option>
+        <option value="Asia/Singapore">Singapore</option>
+        <option value="Europe/Rome">Italy (Rome)</option>
+        <option value="Europe/Madrid">Spain (Madrid)</option>
+        <option value="America/Mexico_City">Mexico (Mexico City)</option>
+        <option value="Europe/Istanbul">Turkey (Istanbul)</option>
+        <option value="Africa/Cairo">Egypt (Cairo)</option>
+        <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+      </select>
+      <span class="pill" id="tzLabel">Local time</span>
+    </div>
+
+    <div class="grid">
+      <div class="card clock-card">
+        <div class="time" id="time">--:--:--</div>
+        <div class="date" id="date">Loading date…</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">⏰ Alarm</div>
+        <div class="row">
+          <input type="time" id="alarmInput" />
+          <button id="setAlarmBtn">Set</button>
+          <button id="clearAlarmBtn">Clear</button>
+        </div>
+        <div class="status" id="alarmStatus">No alarm set</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">⏱ Stopwatch</div>
+        <div class="time" id="stopwatch">00:00:00</div>
+        <div class="row">
+          <button id="swStart">Start</button>
+          <button id="swPause">Pause</button>
+          <button id="swReset">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">⏳ Countdown</div>
+        <div class="row">
+          <input type="number" id="countMinutes" placeholder="Minutes" min="1" />
+          <button id="cdStart">Start</button>
+          <button id="cdReset">Reset</button>
+        </div>
+        <div class="status">Remaining: <strong id="countdownDisplay">00:00</strong></div>
+      </div>
+    </div>
+
+      </div>
+
+  <script>
+    // --- State ---
+    let currentTimeZone = localStorage.getItem('tz') || 'local';
+    let is24Hour = localStorage.getItem('is24') === 'true';
+    let alarmHHMM = null; // "HH:MM" in selected zone
+    let stopwatchInterval = null;
+    let swSeconds = 0;
+    let countdownInterval = null;
+    let countdownRemaining = 0;
+
+    // --- Elements ---
+    const timeEl = document.getElementById('time');
+    const dateEl = document.getElementById('date');
+    const tzSelect = document.getElementById('timezone');
+    const tzLabel = document.getElementById('tzLabel');
+    const themeBtn = document.getElementById('themeBtn');
+    const formatBtn = document.getElementById('formatBtn');
+    const alarmInput = document.getElementById('alarmInput');
+    const alarmStatus = document.getElementById('alarmStatus');
+    const setAlarmBtn = document.getElementById('setAlarmBtn');
+    const clearAlarmBtn = document.getElementById('clearAlarmBtn');
+    const swStart = document.getElementById('swStart');
+    const swPause = document.getElementById('swPause');
+    const swReset = document.getElementById('swReset');
+    const stopwatchEl = document.getElementById('stopwatch');
+    const cdStart = document.getElementById('cdStart');
+    const cdReset = document.getElementById('cdReset');
+    const cdMinutes = document.getElementById('countMinutes');
+    const cdDisplay = document.getElementById('countdownDisplay');
+
+    // --- Theme init ---
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') document.body.classList.add('light');
+
+    // --- Timezone init ---
+    tzSelect.value = currentTimeZone;
+    tzLabel.textContent = currentTimeZone === 'local' ? 'Local time' : currentTimeZone;
+
+    // --- Alarm sound (preload + unlock on user gesture) ---
+    const alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    alarmAudio.preload = 'auto';
+    alarmAudio.loop = false;
+
+    function unlockAudio() {
+      // Attempt to unlock audio playback with a user gesture
+      alarmAudio.muted = true;
+      alarmAudio.play().then(() => {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        alarmAudio.muted = false;
+      }).catch(() => {
+        // ignore; some browsers unlock automatically after the first play()
+      });
+    }
+
+    // --- Optional soft beep fallback (Web Audio API) ---
+    function beep(times = 20, duration = 200, freq = 880) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        let i = 0;
+        function tone() {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.value = 0.08; // gentle
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          setTimeout(() => {
+            osc.stop();
+            i++;
+            if (i < times) setTimeout(tone, 120);
+          }, duration);
+        }
+        tone();
+      } catch { /* silently ignore on older browsers */ }
+    }
+
+    // --- Clock render (centralized) ---
+    function renderClock() {
+      const now = new Date();
+      const dateOpts = {
+        timeZone: currentTimeZone === 'local' ? undefined : currentTimeZone,
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      };
+      const timeOpts = {
+        timeZone: currentTimeZone === 'local' ? undefined : currentTimeZone,
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: !is24Hour
+      };
+
+      timeEl.textContent = now.toLocaleTimeString(undefined, timeOpts);
+      dateEl.textContent = now.toLocaleDateString(undefined, dateOpts);
+
+      // Alarm check in selected zone (HH:MM) using Intl for reliability
+      if (alarmHHMM) {
+        const hhmm = new Intl.DateTimeFormat(undefined, {
+          timeZone: currentTimeZone === 'local' ? undefined : currentTimeZone,
+          hour: '2-digit', minute: '2-digit', hour12: false
+        }).format(now);
+
+        if (hhmm === alarmHHMM) {
+          alarmStatus.textContent = '⏰ Alarm ringing!';
+          // Try audio element first, fallback to beep
+          const playPromise = alarmAudio.play();
+          if (playPromise && typeof playPromise.then === 'function') {
+            playPromise.catch(() => beep(20, 220, 920));
+          }
+          alarmHHMM = null; // clear after ring once
+        }
+      }
+    }
+
+    // Start ticking
+    renderClock();
+    setInterval(renderClock, 1000);
+
+    // --- Theme toggle ---
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    // --- 12/24h toggle ---
+    function updateFormatLabel() {
+      formatBtn.textContent = is24Hour ? '🕘 Switch to 12h' : '🕘 Switch to 24h';
+    }
+    updateFormatLabel();
+    formatBtn.addEventListener('click', () => {
+      is24Hour = !is24Hour;
+      localStorage.setItem('is24', String(is24Hour));
+      updateFormatLabel();
+      renderClock();
+    });
+
+    // --- Timezone change ---
+    tzSelect.addEventListener('change', () => {
+      currentTimeZone = tzSelect.value;
+      localStorage.setItem('tz', currentTimeZone);
+      tzLabel.textContent = currentTimeZone === 'local' ? 'Local time' : currentTimeZone;
+      renderClock();
+    });
+
+    // --- Alarm set/clear ---
+    setAlarmBtn.addEventListener('click', () => {
+      const val = alarmInput.value; // "HH:MM"
+      if (!val) {
+        alarmStatus.textContent = 'Please pick a time.';
+        return;
+      }
+      // Unlock audio on user gesture so future play() works
+      unlockAudio();
+
+      alarmHHMM = val;
+      const zoneNote = currentTimeZone === 'local' ? 'local time' : currentTimeZone;
+      alarmStatus.textContent = `Alarm set for ${val} (${zoneNote})`;
+    });
+    clearAlarmBtn.addEventListener('click', () => {
+      alarmHHMM = null;
+      alarmStatus.textContent = 'No alarm set';
+    });
+
+    // --- Stopwatch ---
+    function formatHMS(totalSec) {
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+    swStart.addEventListener('click', () => {
+      if (stopwatchInterval) return;
+      stopwatchInterval = setInterval(() => {
+        swSeconds++;
+        stopwatchEl.textContent = formatHMS(swSeconds);
+      }, 1000);
+    });
+    swPause.addEventListener('click', () => {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+    });
+    swReset.addEventListener('click', () => {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+      swSeconds = 0;
+      stopwatchEl.textContent = '00:00:00';
+    });
+
+    // --- Countdown ---
+    function renderCountdown() {
+      const m = Math.floor(countdownRemaining / 60);
+      const s = countdownRemaining % 60;
+      cdDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+    cdStart.addEventListener('click', () => {
+      const minutes = parseInt(cdMinutes.value, 10);
+      if (!minutes || minutes < 1) {
+        cdDisplay.textContent = '00:00';
+        return;
+      }
+      clearInterval(countdownInterval);
+      countdownRemaining = minutes * 60;
+      renderCountdown();
+      countdownInterval = setInterval(() => {
+        countdownRemaining--;
+        renderCountdown();
+        if (countdownRemaining <= 0) {
+          clearInterval(countdownInterval);
+          // Play the same alarm sound on countdown finish
+          const p = alarmAudio.play();
+          if (p && typeof p.then === 'function') {
+            p.catch(() => beep(4, 160, 760));
+          }
+        }
+      }, 1000);
+    });
+    cdReset.addEventListener('click', () => {
+      clearInterval(countdownInterval);
+      countdownRemaining = 0;
+      renderCountdown();
+    });
+  </script>
+</body>
+</html>
